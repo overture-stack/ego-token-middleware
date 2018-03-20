@@ -1,4 +1,3 @@
-import 'babel-polyfill';
 import jwt from 'jsonwebtoken';
 import verifyJWT from './verifyJWT';
 
