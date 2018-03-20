@@ -1,0 +1,36 @@
+{
+  "name": "ego-token-middleware",
+  "version": "0.0.0",
+  "description": "",
+  "main": "dist",
+  "scripts": {
+    "prepare": "rm -rf dist && mkdir dist && babel src --out-dir dist --copy-files",
+    "watch": "babel src --out-dir dist --copy-files --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.42",
+    "@babel/core": "^7.0.0-beta.42",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.42",
+    "@babel/preset-env": "^7.0.0-beta.42",
+    "babel-eslint": "^7.2.3",
+    "eslint": "^4.19.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-config-react-app": "^2.1.0",
+    "eslint-plugin-flowtype": "^2.46.1",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-prettier": "^2.6.0",
+    "eslint-plugin-react": "^7.7.0",
+    "prettier": "^1.11.1"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "babel-polyfill": "^6.26.0",
+    "jsonwebtoken": "^8.2.0",
+    "memoizee": "^0.4.12",
+    "url-join": "^4.0.0"
+  }
+}
