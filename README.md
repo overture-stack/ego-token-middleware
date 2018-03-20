@@ -1,4 +1,6 @@
 # ego-token-middleware
+Express middleware for validating ego JWT
+
 ## Usage
 ```
 import egoToken from 'ego-token-middleware';
