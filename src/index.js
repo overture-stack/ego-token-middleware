@@ -9,8 +9,11 @@ export default function({ required, egoURL = process.env.EGO_API }) {
   }
 
   return async (req, res, next) => {
-    const { authorization } = req.headers;
-    const token = authorization ? authorization.split(' ')[1] : req.query.key;
+    const { authorization: authorizationHeader } = req.headers;
+    const { authorization: authorizationBody } = req.body;
+    const authorization = authorizationHeader || authorizationBody;
+
+    const token = authorization ? authorization.split(" ")[1] : req.query.key;
     const valid = token && (await verifyJWT({ token, egoURL }));
 
     if (!valid && required) {
