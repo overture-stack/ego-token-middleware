@@ -16,15 +16,16 @@ export default function({ required, egoURL = process.env.EGO_API }) {
     const token = authorization ? authorization.split(' ')[1] : req.query.key;
 
     let valid = false;
+    let error;
     try {
       valid = token && (await verifyJWT({ token, egoURL }));
     } catch (e) {
-      console.log(`[ego-token-middleware]: ${e}`, e);
+      error = e;
       valid = false;
     }
 
     if (!valid && required) {
-      res.status(401).send('unauthorized');
+      res.status(401).send(error || 'unauthorized');
     } else {
       req.jwt = { ...jwt.decode(token), valid };
       next();
