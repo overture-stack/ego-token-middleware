@@ -19,6 +19,7 @@ export default function({ required, egoURL = process.env.EGO_API }) {
     try {
       valid = token && (await verifyJWT({ token, egoURL }));
     } catch (e) {
+      console.log(`[ego-token-middleware]: ${e}`, e);
       valid = false;
     }
 
