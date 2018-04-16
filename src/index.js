@@ -14,13 +14,22 @@ export default function({ required, egoURL = process.env.EGO_API }) {
     const authorization = authorizationHeader || authorizationBody;
 
     const token = authorization ? authorization.split(" ")[1] : req.query.key;
-    const valid = token && (await verifyJWT({ token, egoURL }));
 
-    if (!valid && required) {
-      res.status(401).send("unauthorized");
-    } else {
+    const onValidated = () => {
       req.jwt = { ...jwt.decode(token), valid };
       next();
-    }
+    };
+
+    verifyJWT({ token: token || "", egoURL })
+      .then(result => {
+        onValidated();
+      })
+      .catch(err => {
+        if (required) {
+          res.status(401).send("unauthorized");
+        } else {
+          onValidated();
+        }
+      });
   };
 }
