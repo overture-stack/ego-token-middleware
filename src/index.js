@@ -25,7 +25,7 @@ export default function({ required, egoURL = process.env.EGO_API }) {
     }
 
     if (!valid && required) {
-      res.status(401).send(error || 'unauthorized');
+      res.status(401).json(error || { message: 'unauthorized' });
     } else {
       req.jwt = { ...jwt.decode(token), valid };
       next();
