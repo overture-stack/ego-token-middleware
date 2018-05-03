@@ -1,7 +1,12 @@
 import jwt from 'jsonwebtoken';
 import verifyJWT from './verifyJWT';
+import { get } from 'lodash';
 
-export default function({ required, egoURL = process.env.EGO_API }) {
+export default function({
+  required,
+  egoURL = process.env.EGO_API,
+  requireUserApproval = process.env.REQUIRE_USER_APPROVAL,
+}) {
   if (!egoURL) {
     throw new Error(
       'must provide ego url with either the `EGO_API` env variable or egoURL argument',
@@ -25,8 +30,16 @@ export default function({ required, egoURL = process.env.EGO_API }) {
       valid = false;
     }
 
-    if (!valid && required) {
+    if (required && !valid) {
       res.status(401).json(error || { message: 'unauthorized' });
+    } else if (
+      requireUserApproval &&
+      !(
+        get(valid, 'context.user.roles', []).includes('ADMIN') ||
+        get(valid, 'context.user.status') === 'Approved'
+      )
+    ) {
+      res.status(403).json({ message: 'forbidden' });
     } else {
       req.jwt = { ...jwt.decode(token), valid };
       next();

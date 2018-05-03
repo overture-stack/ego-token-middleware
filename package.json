@@ -33,6 +33,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "jsonwebtoken": "^8.2.0",
+    "lodash": "^4.17.10",
     "memoizee": "^0.4.12",
     "url-join": "^4.0.0"
   }
