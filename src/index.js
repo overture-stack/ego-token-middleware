@@ -34,8 +34,10 @@ export default function({
       res.status(401).json(error || { message: 'unauthorized' });
     } else if (
       requireUserApproval &&
-      !get(valid, 'context.user.roles', []).includes('ADMIN') &&
-      get(valid, 'context.user.status') !== 'Approved'
+      !(
+        get(valid, 'context.user.roles', []).includes('ADMIN') ||
+        get(valid, 'context.user.status') === 'Approved'
+      )
     ) {
       res.status(403).json({ message: 'forbidden' });
     } else {
