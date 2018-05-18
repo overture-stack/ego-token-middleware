@@ -6,7 +6,8 @@
   "scripts": {
     "build": "babel src --out-dir dist --copy-files",
     "prepare": "rm -rf dist && mkdir dist && npm run build",
-    "watch": "npm run build -- --watch"
+    "watch": "nodemon --ignore dist/ --exec npm run build",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -16,7 +17,9 @@
     "@babel/core": "^7.0.0-beta.42",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.42",
     "@babel/preset-env": "^7.0.0-beta.42",
+    "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^7.2.3",
+    "babel-jest": "^22.4.4",
     "eslint": "^4.19.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-config-react-app": "^2.1.0",
@@ -32,9 +35,11 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "jest": "^22.4.4",
     "jsonwebtoken": "^8.2.0",
     "lodash": "^4.17.10",
     "memoizee": "^0.4.12",
+    "path-to-regexp": "^2.2.1",
     "url-join": "^4.0.0"
   }
 }
