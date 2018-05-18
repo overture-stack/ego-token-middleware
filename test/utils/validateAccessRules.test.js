@@ -75,10 +75,10 @@ describe('validateAccessRules', () => {
         }),
       ).toEqual(true));
 
-    test('allow non-root from role', () =>
+    test('allow root from role', () =>
       expect(
         validateAccessRules({
-          url: '/asfdk',
+          url: '/',
           user: { roles: ['admin'], status: 'rejected' },
           accessRules: ruleSetOne,
         }),
