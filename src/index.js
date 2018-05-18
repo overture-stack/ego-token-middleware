@@ -1,7 +1,7 @@
 import { get } from 'lodash';
 import jwt from 'jsonwebtoken';
 
-import { validateAccessRules, verifyJWT } from './verifyJWT';
+import { validateAccessRules, verifyJWT } from './utils';
 
 export default function({
   required,
