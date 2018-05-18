@@ -1,11 +1,12 @@
-import jwt from 'jsonwebtoken';
-import verifyJWT from './verifyJWT';
 import { get } from 'lodash';
+import jwt from 'jsonwebtoken';
+
+import { validateAccessRules, verifyJWT } from './utils';
 
 export default function({
   required,
   egoURL = process.env.EGO_API,
-  requireUserApproval = process.env.REQUIRE_USER_APPROVAL,
+  accessRules = [],
 }) {
   if (!egoURL) {
     throw new Error(
@@ -33,13 +34,13 @@ export default function({
     if (required && !valid) {
       res.status(401).json(error || { message: 'unauthorized' });
     } else if (
-      requireUserApproval &&
-      !(
-        get(valid, 'context.user.roles', []).includes('ADMIN') ||
-        get(valid, 'context.user.status') === 'Approved'
-      )
+      !validateAccessRules({
+        url: req.originalUrl,
+        user: get(valid, 'context.user', {}),
+        accessRules,
+      })
     ) {
-      res.status(403).json({ message: 'forbidden' });
+      res.status(403).json(error || { message: 'forbidden' });
     } else {
       req.jwt = { ...jwt.decode(token), valid };
       next();
