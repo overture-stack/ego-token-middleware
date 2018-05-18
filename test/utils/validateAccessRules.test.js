@@ -15,7 +15,7 @@ describe('validateAccessRules', () => {
       },
       {
         type: 'allow',
-        route: [`/a/graphql`, `/b/download`],
+        route: [`/(.*)/graphql`, `/(.*)/graphql/(.*)`, `/(.*)/download`],
         status: ['approved'],
         role: 'user',
       },
@@ -53,6 +53,24 @@ describe('validateAccessRules', () => {
         validateAccessRules({
           url: '/a/graphql',
           user: { roles: ['user'], status: 'approved' },
+          accessRules: ruleSetOne,
+        }),
+      ).toEqual(true));
+
+    test('allow non-root from status with gql extension', () =>
+      expect(
+        validateAccessRules({
+          url: '/a/graphql/abcd',
+          user: { roles: ['user'], status: 'approved' },
+          accessRules: ruleSetOne,
+        }),
+      ).toEqual(true));
+
+    test('allow non-root from status with wildcard', () =>
+      expect(
+        validateAccessRules({
+          url: '/fdlkj/download',
+          user: { roles: ['USER'], status: 'Approved' },
           accessRules: ruleSetOne,
         }),
       ).toEqual(true));
