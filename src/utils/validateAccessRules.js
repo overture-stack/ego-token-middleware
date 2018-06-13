@@ -18,17 +18,17 @@ const ensureValuesAreArray = (obj, props = []) =>
 const arraysShareValue = (arr1, arr2, { map = toLower } = {}) =>
   arr1.map(map).some(x => arr2.map(map).includes(x));
 
-const validateAccessRules = ({ url, user, accessRules }) => {
-  const rule = reverse(accessRules)
+const validateAccessRules = ({ url, user, accessRules, valid }) => {
+  const rule = reverse(accessRules || [])
     .map(x => ensureValuesAreArray(x, ['route', 'status', 'role']))
     .find(r =>
       [
         r.route.some(x => pathToRegexp(x).exec(url)),
-        !r.role || arraysShareValue(r.role, user.roles),
+        !r.role || arraysShareValue(r.role, user.roles || []),
         !r.status || arraysShareValue(r.status, [user.status]),
       ].every(Boolean),
     );
-  return !rule || rule.type === 'allow';
+  return rule ? rule.type === 'allow' && (!rule.tokenRequired || valid) : valid;
 };
 
 export default validateAccessRules;

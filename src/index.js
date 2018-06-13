@@ -3,11 +3,7 @@ import jwt from 'jsonwebtoken';
 
 import { validateAccessRules, verifyJWT } from './utils';
 
-export default function({
-  required,
-  egoURL = process.env.EGO_API,
-  accessRules = [],
-}) {
+export default function({ egoURL = process.env.EGO_API, accessRules = [] }) {
   if (!egoURL) {
     throw new Error(
       'must provide ego url with either the `EGO_API` env variable or egoURL argument',
@@ -31,16 +27,15 @@ export default function({
       valid = false;
     }
 
-    if (required && !valid) {
-      res.status(401).json(error || { message: 'unauthorized' });
-    } else if (
+    if (
       !validateAccessRules({
         url: req.originalUrl,
         user: get(valid, 'context.user', {}),
+        valid,
         accessRules,
       })
     ) {
-      res.status(403).json(error || { message: 'forbidden' });
+      res.status(401).json(error || { message: 'unauthorized' });
     } else {
       req.jwt = { ...jwt.decode(token), valid };
       next();
