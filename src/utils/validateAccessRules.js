@@ -28,7 +28,10 @@ const validateAccessRules = ({ url, user, accessRules, valid }) => {
         !r.status || arraysShareValue(r.status, [user.status]),
       ].every(Boolean),
     );
-  return rule ? rule.type === 'allow' && (!rule.tokenRequired || valid) : valid;
+  const validity = valid ? 0 : 401;
+  return rule
+    ? rule.type === 'deny' ? 403 : !rule.tokenRequired ? 0 : validity
+    : validity;
 };
 
 export default validateAccessRules;
