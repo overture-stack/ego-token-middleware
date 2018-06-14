@@ -19,23 +19,20 @@ export default function({ egoURL = process.env.EGO_API, accessRules = [] }) {
     const token = authorization ? authorization.split(' ')[1] : req.query.key;
 
     let valid = false;
-    let error;
     try {
       valid = token && (await verifyJWT({ token, egoURL }));
     } catch (e) {
-      error = e;
       valid = false;
     }
 
-    if (
-      !validateAccessRules({
-        url: req.originalUrl,
-        user: get(valid, 'context.user', {}),
-        valid,
-        accessRules,
-      })
-    ) {
-      res.status(401).json(error || { message: 'unauthorized' });
+    const errorCode = validateAccessRules({
+      url: req.originalUrl,
+      user: get(valid, 'context.user', {}),
+      valid,
+      accessRules,
+    });
+    if (errorCode) {
+      res.status(errorCode).json({ message: 'unauthorized' });
     } else {
       req.jwt = { ...jwt.decode(token), valid };
       next();
