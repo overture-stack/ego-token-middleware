@@ -2,6 +2,8 @@ import { validateAccessRules } from '../../src/utils';
 
 describe('validateAccessRules', () => {
   describe('ruleSetOne', () => {
+    const UNAUTHORIZED = { code: 401, message: 'unauthorized' };
+    const FORBIDDEN = { code: 403, message: 'forbidden' };
     const ruleSetOne = [
       {
         type: 'allow',
@@ -33,7 +35,7 @@ describe('validateAccessRules', () => {
           user: { roles: ['user'] },
           accessRules: ruleSetOne,
         }),
-      ).toEqual(403));
+      ).toEqual(FORBIDDEN));
 
     test('deny non-root from role', () =>
       expect(
@@ -42,7 +44,7 @@ describe('validateAccessRules', () => {
           user: { roles: ['user'] },
           accessRules: ruleSetOne,
         }),
-      ).toEqual(403));
+      ).toEqual(FORBIDDEN));
 
     test('deny non-root from status', () =>
       expect(
@@ -51,9 +53,9 @@ describe('validateAccessRules', () => {
           user: { roles: ['user'], status: 'pending' },
           accessRules: ruleSetOne,
         }),
-      ).toEqual(403));
+      ).toEqual(FORBIDDEN));
 
-    test('when token is invalid', () =>
+    test('when user is not yet approved', () =>
       expect(
         validateAccessRules({
           url: '/a/graphql',
@@ -61,7 +63,7 @@ describe('validateAccessRules', () => {
           accessRules: ruleSetOne,
           valid: false,
         }),
-      ).toEqual(403));
+      ).toEqual(FORBIDDEN));
 
     test('allow non-root from status', () =>
       expect(
@@ -81,7 +83,7 @@ describe('validateAccessRules', () => {
           accessRules: ruleSetOne,
           valid: false,
         }),
-      ).toEqual(401));
+      ).toEqual(UNAUTHORIZED));
 
     test('allow non-root from status with gql extension', () =>
       expect(

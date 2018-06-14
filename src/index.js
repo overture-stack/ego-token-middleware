@@ -25,14 +25,14 @@ export default function({ egoURL = process.env.EGO_API, accessRules = [] }) {
       valid = false;
     }
 
-    const errorCode = validateAccessRules({
+    const error = validateAccessRules({
       url: req.originalUrl,
       user: get(valid, 'context.user', {}),
       valid,
       accessRules,
     });
-    if (errorCode) {
-      res.status(errorCode).json({ message: 'unauthorized' });
+    if (error) {
+      res.status(error.code).json({ message: error.message });
     } else {
       req.jwt = { ...jwt.decode(token), valid };
       next();

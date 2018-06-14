@@ -2,6 +2,9 @@ import { reverse } from 'lodash/fp';
 import { keys } from 'lodash';
 import pathToRegexp from 'path-to-regexp';
 
+const UNAUTHORIZED = { code: 401, message: 'unauthorized' };
+const FORBIDDEN = { code: 403, message: 'forbidden' };
+
 const toLower = x => (x || '').toLowerCase();
 
 const ensureArray = x => (Array.isArray(x) ? x : [x]);
@@ -28,9 +31,9 @@ const validateAccessRules = ({ url, user, accessRules, valid }) => {
         !r.status || arraysShareValue(r.status, [user.status]),
       ].every(Boolean),
     );
-  const validity = valid ? 0 : 401;
+  const validity = valid ? 0 : UNAUTHORIZED;
   return rule
-    ? rule.type === 'deny' ? 403 : rule.tokenExempt ? 0 : validity
+    ? rule.type === 'deny' ? FORBIDDEN : rule.tokenExempt ? 0 : validity
     : validity;
 };
 
