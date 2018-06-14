@@ -19,6 +19,11 @@ describe('validateAccessRules', () => {
         status: ['approved'],
         role: 'user',
       },
+      {
+        type: 'allow',
+        route: [`/(.*)/ping`],
+        tokenExempt: true,
+      },
     ];
 
     test('deny root from role', () =>
@@ -28,7 +33,7 @@ describe('validateAccessRules', () => {
           user: { roles: ['user'] },
           accessRules: ruleSetOne,
         }),
-      ).toEqual(false));
+      ).toEqual(403));
 
     test('deny non-root from role', () =>
       expect(
@@ -37,7 +42,7 @@ describe('validateAccessRules', () => {
           user: { roles: ['user'] },
           accessRules: ruleSetOne,
         }),
-      ).toEqual(false));
+      ).toEqual(403));
 
     test('deny non-root from status', () =>
       expect(
@@ -46,7 +51,17 @@ describe('validateAccessRules', () => {
           user: { roles: ['user'], status: 'pending' },
           accessRules: ruleSetOne,
         }),
-      ).toEqual(false));
+      ).toEqual(403));
+
+    test('when token is invalid', () =>
+      expect(
+        validateAccessRules({
+          url: '/a/graphql',
+          user: { roles: ['user'], status: 'pending' },
+          accessRules: ruleSetOne,
+          valid: false,
+        }),
+      ).toEqual(403));
 
     test('allow non-root from status', () =>
       expect(
@@ -54,8 +69,19 @@ describe('validateAccessRules', () => {
           url: '/a/graphql',
           user: { roles: ['user'], status: 'approved' },
           accessRules: ruleSetOne,
+          valid: true,
         }),
-      ).toEqual(true));
+      ).toEqual(0));
+
+    test('when token is invalid', () =>
+      expect(
+        validateAccessRules({
+          url: '/a/graphql',
+          user: { roles: ['user'], status: 'approved' },
+          accessRules: ruleSetOne,
+          valid: false,
+        }),
+      ).toEqual(401));
 
     test('allow non-root from status with gql extension', () =>
       expect(
@@ -63,8 +89,9 @@ describe('validateAccessRules', () => {
           url: '/a/graphql/abcd',
           user: { roles: ['user'], status: 'approved' },
           accessRules: ruleSetOne,
+          valid: true,
         }),
-      ).toEqual(true));
+      ).toEqual(0));
 
     test('allow non-root from status with wildcard', () =>
       expect(
@@ -72,8 +99,9 @@ describe('validateAccessRules', () => {
           url: '/fdlkj/download',
           user: { roles: ['USER'], status: 'Approved' },
           accessRules: ruleSetOne,
+          valid: true,
         }),
-      ).toEqual(true));
+      ).toEqual(0));
 
     test('allow root from role', () =>
       expect(
@@ -81,8 +109,9 @@ describe('validateAccessRules', () => {
           url: '/',
           user: { roles: ['admin'], status: 'rejected' },
           accessRules: ruleSetOne,
+          valid: true,
         }),
-      ).toEqual(true));
+      ).toEqual(0));
 
     test('allow non-root from role', () =>
       expect(
@@ -90,7 +119,18 @@ describe('validateAccessRules', () => {
           url: '/asfdk',
           user: { roles: ['admin'], status: 'rejected' },
           accessRules: ruleSetOne,
+          valid: true,
         }),
-      ).toEqual(true));
+      ).toEqual(0));
+
+    test('ignore invalid token if tokenExempt', () =>
+      expect(
+        validateAccessRules({
+          url: '/asd/ping',
+          user: { roles: ['admin'], status: 'rejected' },
+          accessRules: ruleSetOne,
+          valid: false,
+        }),
+      ).toEqual(0));
   });
 });
