@@ -2,6 +2,8 @@
 
 Express middleware for validating ego JWT
 
+[![Slack](http://slack.overture.bio/badge.svg)](http://slack.overture.bio)
+
 ## Usage
 
 ```
