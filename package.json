@@ -1,6 +1,6 @@
 {
-  "name": "ego-token-middleware",
-  "version": "1.0.1",
+  "name": "@overture-stack/ego-token-middleware",
+  "version": "1.1.1",
   "description": "",
   "main": "dist",
   "scripts": {
