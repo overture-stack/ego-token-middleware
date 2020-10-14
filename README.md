@@ -7,9 +7,13 @@ Express middleware for validating ego JWT
 ## Usage
 
 ```
-import egoToken from 'ego-token-middleware';
+import Auth from 'ego-token-middleware';
 const app = express();
-app.use(egoToken({ required: true }));
+...
+ِconst authFilter = Auth(jwtKeyUrl)(WRITE_SCOPE)
+app.get('/protected', authFilter, (req: Request, res: Response) => {
+  return res.send('I am protected');
+});
 ```
 
 The Ego JWT must be included in in the request as `authorization` in either
@@ -19,6 +23,3 @@ is the token.
 This middleware needs the request to be ran through `body-parser` by the consuming app.
 
 ## Options
-
-* `required` - if true, send 401 error on invalid token. default: `false`
-* `egoURL` - url of ego to fetch public key from. default: the value of `process.env.EGO_API`

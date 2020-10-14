@@ -1,7 +1,7 @@
 import { reverse } from 'lodash/fp';
 import pathToRegexp from 'path-to-regexp';
 
-type AccessRule = {
+export type AccessRule = {
   type: string
   route: Array<string>
   status?: Array<string>
@@ -32,7 +32,7 @@ const ensureValuesAreArray = (obj: AccessRule): AccessRule => {
 const arraysShareValue = (arr1: Array<string>, arr2: Array<string>, { map = toLower } = {}) =>
   arr1.map(map).some(x => arr2.map(map).includes(x));
 
-const validateAccessRules = (url: string, user: any, accessRules: Array<AccessRule>, valid: boolean) => {
+export const validateAccessRules = (url: string, user: any, accessRules: Array<AccessRule>, valid: boolean) => {
   const rule: AccessRule = reverse(accessRules || [])
     .map((x: AccessRule) => ensureValuesAreArray(x))
     .find((r: AccessRule): Boolean =>
@@ -40,7 +40,7 @@ const validateAccessRules = (url: string, user: any, accessRules: Array<AccessRu
         r.route.some((x: string) => pathToRegexp(x).exec(url)),
         (r.role === undefined) || arraysShareValue(r.role, user.roles || []),
         (r.status === undefined) || arraysShareValue(r.status, [user.status]),
-      ].every(Boolean));
+      ].every(Boolean)) as AccessRule;
 
   const validity = valid ? 0 : UNAUTHORIZED;
   return rule
@@ -48,4 +48,3 @@ const validateAccessRules = (url: string, user: any, accessRules: Array<AccessRu
     : validity;
 };
 
-export default validateAccessRules;

@@ -1,6 +1,5 @@
-import { expect } from "chai";
-import { validateAccessRules } from "../../src/utils";
-import { FORBIDDEN, UNAUTHORIZED } from "../../src/utils/validateAccessRules"
+import { expect } from 'chai';
+import { FORBIDDEN, UNAUTHORIZED, validateAccessRules } from '../../src/utils/validateAccessRules';
 
 describe('validateAccessRules', () => {
 
@@ -51,25 +50,25 @@ describe('validateAccessRules', () => {
       expect(
         validateAccessRules('/a/graphql', { roles: ['user'], status: 'pending' }, ruleSetOne(), true)
       ).to.equal(FORBIDDEN);
-    })
+    });
 
     it('allow non-root from status', () => {
       expect(
         validateAccessRules('/a/graphql', { roles: ['user'], status: 'approved' }, ruleSetOne(), true)
       ).to.equal(0);
-    })
+    });
 
     it('when token is invalid', () => {
       expect(
         validateAccessRules('/a/graphql', { roles: ['user'], status: 'approved' }, ruleSetOne(), false)
       ).to.equal(UNAUTHORIZED);
-    })
+    });
 
     it('allow non-root from status with gql extension', () => {
       expect(
         validateAccessRules('/a/graphql/abcd', { roles: ['user'], status: 'approved' }, ruleSetOne(), true)
       ).to.equal(0);
-    })
+    });
 
     it('allow non-root from status with wildcard', () => {
       expect(
@@ -95,6 +94,6 @@ describe('validateAccessRules', () => {
       ).to.equal(0);
     });
 
-  })
+  });
 
 });
