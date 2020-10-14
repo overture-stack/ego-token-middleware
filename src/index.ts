@@ -31,7 +31,7 @@ const handler = (keyUrl?: string, key?: string) =>
       let valid = false;
       let decodedToken: { [key: string]: any } | undefined = undefined;
       // no token, or empty token provided
-      if (token == undefined || token == '') {
+      if (!token) {
         valid = false;
         next(new UnauthorizedError('You need to be authenticated for this request.'));
         return;
@@ -39,7 +39,7 @@ const handler = (keyUrl?: string, key?: string) =>
 
       // decode the token, if invalid throw unauthorized error
       try {
-          decodedToken = jwt.verify(token, publicKey) as { [key: string]: any } ;
+        decodedToken = jwt.verify(token, publicKey) as { [key: string]: any } ;
       } catch (e) {
         console.error('failed to verify token.', e);
         next(new UnauthorizedError('You need to be authenticated for this request.'));
