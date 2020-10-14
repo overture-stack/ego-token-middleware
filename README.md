@@ -21,5 +21,3 @@ the body or the header, with the format `"Bearer __TOKEN__"` where `__TOKEN__`
 is the token.
 
 This middleware needs the request to be ran through `body-parser` by the consuming app.
-
-## Options
