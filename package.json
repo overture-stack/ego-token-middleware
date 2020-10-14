@@ -1,6 +1,6 @@
 {
   "name": "@overture-stack/ego-token-middleware",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "",
   "main": "dist",
   "scripts": {
@@ -39,7 +39,8 @@
     "jsonwebtoken": "^8.5.1",
     "memoizee": "^0.4.14",
     "path-to-regexp": "^6.2.0",
-    "url-join": "^4.0.1"
+    "url-join": "^4.0.1",
+    "ms": "^2.1.2"
   },
   "prettier": {
     "printWidth": 100,
