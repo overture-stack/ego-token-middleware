@@ -21,3 +21,6 @@ the body or the header, with the format `"Bearer __TOKEN__"` where `__TOKEN__`
 is the token.
 
 This middleware needs the request to be ran through `body-parser` by the consuming app.
+
+# publishing
+A github action is setup to run tests and auto publish to npm registery if the version in package.json is new when a push to master happens
