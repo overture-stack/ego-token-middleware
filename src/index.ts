@@ -1,39 +1,77 @@
-import { get } from 'lodash';
 import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
+import { getKey } from './utils/verifyJWT';
 
-import { validateAccessRules, verifyJWT } from './utils';
-import { Request, Response } from 'express';
-import { NextFunction } from 'connect';
-
-export default function(egoURL: string = process.env.EGO_API, accessRules: Array<AccessRule> = []) {
-  if (!egoURL) {
-    throw new Error(
-      'must provide ego url with either the `EGO_API` env variable or egoURL argument',
-    );
+export default function(keyUrl?: string, key?: string) {
+  if (!keyUrl && !key) {
+    throw new Error('must provide either key url or key to validate tokens');
   }
+  return handler(keyUrl, key);
+}
 
-  return async (req: Request, res: Response, next: NextFunction) => {
-    const { authorization: authorizationHeader } = req.headers;
-    const { authorization: authorizationBody }: any = req.body || {};
+const handler = (keyUrl?: string, key?: string) =>
+  (authorizedScopes: string[]): RequestHandler => {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      const { authorization: authorizationHeader } = req.headers;
+      const { authorization: authorizationBody }: any = req.body || {};
+      const authorization = authorizationHeader || authorizationBody;
+      const token: string | undefined =  authorization?.split(' ')[1];
+      let publicKey = undefined;
 
-    const authorization = authorizationHeader || authorizationBody;
-    const token = authorization ? authorization.split(' ')[1] : req.query.key;
+      try {
+        publicKey = key ? key : await getKey(keyUrl as string);
+        if (publicKey == undefined) {
+          throw new Error('invalid key');
+        }
+      } catch (err) {
+        // failed to get the key (ego could be down)
+        next(new Error('failed to fetch token key:' + err));
+        return;
+      }
+      let valid = false;
+      let decodedToken: { [key: string]: any } | undefined = undefined;
+      // no token, or empty token provided
+      if (!token) {
+        valid = false;
+        next(new UnauthorizedError('You need to be authenticated for this request.'));
+        return;
+      }
 
-    let valid = false;
-    try {
-      valid = !!(token && (await verifyJWT(token, egoURL)));
-    } catch (e) {
-      valid = false;
-    }
+      // decode the token, if invalid throw unauthorized error
+      try {
+        decodedToken = jwt.verify(token, publicKey) as { [key: string]: any } ;
+      } catch (e) {
+        console.error('failed to verify token.', e);
+        next(new UnauthorizedError('You need to be authenticated for this request.'));
+        return;
+      }
 
-    const error = validateAccessRules(req.originalUrl, get(valid, 'context.user', {}), accessRules, valid);
-    if (error) {
-      res.status(error.code).json({ message: error.message });
-    } else {
-      req.jwt = { 
-        ...(jwt.decode(token) as ({[key: string]: any})), valid
-      };
-      next();
-    }
+      // check if any of the required scopes are there
+      try {
+        const scopes = decodedToken['context']['scope'] as Array<string>;
+        if (!scopes.some(s => authorizedScopes.includes(s))) {
+          next(new ForbiddenError('Forbidden'));
+          return;
+        }
+        next();
+        return;
+      } catch (e) {
+        console.error('failed to verify scopes', e);
+        next(new ForbiddenError('Forbidden'));
+        return;
+      }
+    };
   };
+export class UnauthorizedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'Unauthorized';
+  }
+}
+
+export class ForbiddenError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'Forbidden';
+  }
 }

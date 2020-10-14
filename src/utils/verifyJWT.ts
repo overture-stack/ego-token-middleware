@@ -2,20 +2,20 @@ import memoize from 'memoizee';
 import axios from 'axios';
 import ms from 'ms';
 import jwt from 'jsonwebtoken';
-import urlJoin from 'url-join';
 
-const getKey = memoize(
-  async (egoURL: string) => {
-    const response = await axios.get(urlJoin(egoURL, 'oauth/token/public_key'));
+export const getKey = memoize(
+  async (keyUrl: string) => {
+    const response = await axios.get(keyUrl, {
+      timeout: 10 * 1000,
+    });
     return response.data;
   },
   {
-    maxAge: ms('3h'),
+    maxAge: ms(process.env.KEY_REFRESH_INTERVAL_EXPRESSION || '1h'),
     preFetch: true,
   },
 );
 
-export default async function (token: string, egoURL: string) {
-  const key = await getKey(egoURL);
+export default async function (token: string, key: string) {
   return jwt.verify(token, key);
 }
