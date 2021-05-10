@@ -50,8 +50,8 @@ const handler = (keyUrl?: string, key?: string) =>
       // check if any of the required scopes are there
       try {
         const scopes = decodedToken.context.scope;
-        if (authorizedScopes 
-          && authorizedScopes.length > 0 
+        if (authorizedScopes
+          && authorizedScopes.length > 0
           && !scopes.some(s => authorizedScopes.includes(s))) {
 
           next(new ForbiddenError('Forbidden'));
