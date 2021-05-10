@@ -28,8 +28,9 @@ const handler = (keyUrl?: string, key?: string) =>
         next(new Error('failed to fetch token key:' + err));
         return;
       }
+
       let valid = false;
-      let decodedToken: { [key: string]: any } | undefined = undefined;
+      let decodedToken: EgoJwtData | undefined = undefined;
       // no token, or empty token provided
       if (!token) {
         valid = false;
@@ -39,7 +40,7 @@ const handler = (keyUrl?: string, key?: string) =>
 
       // decode the token, if invalid throw unauthorized error
       try {
-        decodedToken = jwt.verify(token, publicKey) as { [key: string]: any } ;
+        decodedToken = jwt.verify(token, publicKey) as EgoJwtData;
       } catch (e) {
         console.error('failed to verify token.', e);
         next(new UnauthorizedError('You need to be authenticated for this request.'));
@@ -48,11 +49,19 @@ const handler = (keyUrl?: string, key?: string) =>
 
       // check if any of the required scopes are there
       try {
-        const scopes = decodedToken['context']['scope'] as Array<string>;
-        if (!scopes.some(s => authorizedScopes.includes(s))) {
+        const scopes = decodedToken.context.scope;
+        if (authorizedScopes 
+          && authorizedScopes.length > 0 
+          && !scopes.some(s => authorizedScopes.includes(s))) {
+
           next(new ForbiddenError('Forbidden'));
           return;
         }
+
+        // inject identity in request object to make it accessible downstream.
+        const identity = getInfoFromToken(decodedToken);
+        (req as any).identity = identity;
+
         next();
         return;
       } catch (e) {
@@ -62,6 +71,7 @@ const handler = (keyUrl?: string, key?: string) =>
       }
     };
   };
+
 export class UnauthorizedError extends Error {
   constructor(message: string) {
     super(message);
@@ -75,3 +85,50 @@ export class ForbiddenError extends Error {
     this.name = 'Forbidden';
   }
 }
+
+function getInfoFromToken(decodedToken: EgoJwtData): Identity {
+  return {
+    userId: decodedToken.sub,
+    tokenInfo: decodedToken,
+  };
+}
+
+export type Identity = {
+  userId: string;
+  tokenInfo: EgoJwtData,
+};
+
+export declare enum UserStatus {
+  APPROVED = 'APPROVED',
+  DISABLED = 'DISABLED',
+  PENDING = 'PENDING',
+  REJECTED = 'REJECTED'
+}
+
+export declare enum UserType {
+  ADMIN = 'ADMIN',
+  USER = 'USER'
+}
+
+export declare type EgoJwtData = {
+  iat: number;
+  exp: number;
+  sub: string;
+  iss: string;
+  aud: string[];
+  jti: string;
+  context: {
+      scope: string[];
+      user: {
+          name: string;
+          email: string;
+          status: UserStatus;
+          firstName: string;
+          lastName: string;
+          createdAt: number;
+          lastLogin: number;
+          preferredLanguage: string | undefined;
+          type: UserType;
+      };
+  };
+};
