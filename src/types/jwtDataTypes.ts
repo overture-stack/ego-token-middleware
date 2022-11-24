@@ -106,31 +106,3 @@ export type ApplicationIdentity = z.infer<typeof ApplicationIdentity>;
 
 export const Identity = z.union([UserIdentity, ApplicationIdentity]);
 export type Identity = z.infer<typeof Identity>;
-
-const hey: Identity = {
-  userId: '1234',
-  tokenInfo: {
-    jti: '',
-    iss: '',
-    exp: 123456,
-    sub: '',
-    iat: 34566,
-    aud: [],
-    context: {
-      scope: ['DACO-TEST.WRITE'],
-      user: {
-        email: '',
-        firstName: '',
-        lastName: '',
-        lastLogin: 1234567,
-        createdAt: 1234,
-        preferredLanguage: 'ENGLISH',
-        providerSubjectId: '',
-        providerType: ProviderType.enum.FACEBOOK,
-        groups: [],
-        type: UserType.enum.ADMIN,
-        status: UserStatus.enum.APPROVED,
-      },
-    },
-  },
-};
