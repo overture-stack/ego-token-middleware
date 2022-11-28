@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 
 import { getKey } from './utils/verifyJWT';
-import { UserJwtData, ApplicationJwtData } from 'jwtDataTypes';
+import { UserJwtData, ApplicationJwtData } from './types';
 
 export default function (keyUrl?: string, key?: string) {
   if (!keyUrl && !key) {

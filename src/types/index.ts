@@ -1,15 +1,13 @@
 import * as z from 'zod';
 
 /* Base JWT types */
-export const BaseJwtData = z
-  .object({
-    iat: z.number(),
-    exp: z.number(),
-    sub: z.string(),
-    iss: z.string(),
-    jti: z.string(),
-  })
-  .strict();
+export const BaseJwtData = z.object({
+  iat: z.number(),
+  exp: z.number(),
+  sub: z.string(),
+  iss: z.string(),
+  jti: z.string(),
+});
 export const Scope = z.array(z.string());
 
 export type BaseJwtData = z.infer<typeof BaseJwtData>;
