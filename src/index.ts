@@ -2,8 +2,7 @@ import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 
 import { getKey } from './utils/verifyJWT';
-import { UserJwtData, ApplicationJwtData, UserType } from 'jwtDataTypes';
-import type { Identity } from 'jwtDataTypes';
+import { UserJwtData, ApplicationJwtData } from 'jwtDataTypes';
 
 export default function (keyUrl?: string, key?: string) {
   if (!keyUrl && !key) {
@@ -42,7 +41,7 @@ const handler = (keyUrl?: string, key?: string) => (authorizedScopes: string[]):
       // verify the token with the public key
       const verifiedToken = jwt.verify(token, publicKey);
       // try parsing the token as user or app jwt data
-      const parsedJwtData: UserJwtData | ApplicationJwtData = getValidatedJwtData(verifiedToken);
+      const parsedJwtData = getValidatedJwtData(verifiedToken);
 
       // check if any of the required scopes are there
       try {
@@ -56,21 +55,12 @@ const handler = (keyUrl?: string, key?: string) => (authorizedScopes: string[]):
           return;
         }
 
-        const foo: Identity = {
+        const identityFromJwt = {
           userId: parsedJwtData.sub,
           tokenInfo: parsedJwtData,
         };
         // inject identity in request object to make it accessible downstream.
-        // const foo: Identity = {
-        //   userId: parsedJwtData.sub,
-        //   tokenInfo: {
-        //     context: parsedJwtData.context,
-        //     scope: parsedJwtData.context.scope
-        //   },
-        // };
-        // const identity = getInfoFromToken(verifiedToken);
-        // (req as any).identity = identity;
-        (req as any).identity = foo;
+        (req as any).identity = identityFromJwt;
 
         next();
         return;
@@ -101,93 +91,18 @@ export class ForbiddenError extends Error {
   }
 }
 
-function getInfoFromToken(decodedToken: UserJwtData): Identity {
-  return {
-    userId: decodedToken.sub,
-    tokenInfo: decodedToken,
-  };
-}
-
 function getValidatedJwtData(decodedToken: Object | string): UserJwtData | ApplicationJwtData {
-  const mockUserToken: UserJwtData = {
-    // userId: '1234',
-    // tokenInfo: {
-    sub: '1234',
-    iat: 123,
-    exp: 456,
-    iss: 'ego',
-    jti: 'jti123',
-    aud: [],
-    context: {
-      scope: [''],
-      user: {
-        email: 'a',
-        status: 'APPROVED',
-        firstName: 'Ann',
-        lastName: 'Catton',
-        createdAt: 1580931064975,
-        lastLogin: 1669299843399,
-        preferredLanguage: '',
-        providerType: 'GOOGLE',
-        providerSubjectId: '',
-        type: 'ADMIN' as UserType,
-        groups: [],
-      },
-    },
-    // },
-  };
-
-  const mockAppToken: ApplicationJwtData = {
-    sub: '',
-    nbf: 1669223158,
-    scope: [''],
-    iss: 'ego',
-    context: {
-      scope: [''],
-      application: {
-        name: '',
-        clientId: '',
-        redirectUri: '',
-        status: 'APPROVED',
-        errorRedirectUri: '',
-        type: 'CLIENT',
-      },
-    },
-    exp: 1670087158,
-    iat: 1669223158,
-    jti: '1',
-  };
-  return mockAppToken;
-  // try {
-  //   const userToken: UserJwtData = UserJwtData.parse(decodedToken)
-  //   return userToken
-  // } catch(err) {
-  //   console.error('Failed to parse token as user jwt data.')
-  //   try {
-  //     const appToken: ApplicationJwtData = ApplicationJwtData.parse(decodedToken)
-  //     return appToken
-  //   } catch (err) {
-  //     console.error('Failed to parse token as app jwt data')
-  //     throw new Error('error')
-  //   }
-  // }
-  // if (typeof decodedToken === 'string') {
-  //   console.error('Unexpected token structure.');
-  //   throw new UnauthorizedError('You need to be authenticated for this request.');
-  // }
-  // try {
-  //   if (decodedToken.hasOwnProperty('context.user')) {
-  //     const userToken = UserJwtData.parse(decodedToken);
-  //     return userToken;
-  //   } else if (decodedToken.hasOwnProperty('context.application')) {
-  //     const appToken = ApplicationJwtData.parse(decodedToken);
-  //     return appToken;
-  //   } else {
-  //     throw new Error('Unexpected token structure.');
-  //   }
-  //   // this will throw if parsing fails, but you still want to be able to try for an appToken
-  // } catch (err) {
-  //   console.error(err);
-  //   throw new UnauthorizedError('You need to be authenticated for this request.');
-  // }
+  try {
+    const userToken = UserJwtData.parse(decodedToken);
+    return userToken;
+  } catch (userTokenErr) {
+    console.error('err as user token: ', userTokenErr);
+    try {
+      const appToken = ApplicationJwtData.parse(decodedToken);
+      return appToken;
+    } catch (appTokenErr) {
+      console.error('Err as app token: ', appTokenErr);
+      throw new UnauthorizedError('Unexpected token structure.');
+    }
+  }
 }
