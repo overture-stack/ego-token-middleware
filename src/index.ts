@@ -3,6 +3,7 @@ import { Request, Response, NextFunction, RequestHandler } from 'express';
 
 import { getKey } from './utils/verifyJWT';
 import { UserJwtData, ApplicationJwtData } from './types';
+export * from './types';
 
 export default function (keyUrl?: string, key?: string) {
   if (!keyUrl && !key) {
@@ -96,12 +97,12 @@ function getValidatedJwtData(decodedToken: Object | string): UserJwtData | Appli
     const userToken = UserJwtData.parse(decodedToken);
     return userToken;
   } catch (userTokenErr) {
-    console.error('err as user token: ', userTokenErr);
+    console.error('Error parsing as user token: ', userTokenErr);
     try {
       const appToken = ApplicationJwtData.parse(decodedToken);
       return appToken;
     } catch (appTokenErr) {
-      console.error('Err as app token: ', appTokenErr);
+      console.error('Error parsing as app token: ', appTokenErr);
       throw new UnauthorizedError('Unexpected token structure.');
     }
   }
