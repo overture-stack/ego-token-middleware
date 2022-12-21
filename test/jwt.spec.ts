@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import { ApplicationJwtData, Identity, UserJwtData } from '../src/types';
 
 export const mockUserToken = {
@@ -18,7 +19,7 @@ export const mockUserToken = {
         lastName: 'C',
         createdAt: 1580931064975,
         lastLogin: 1669299843399,
-        preferredLanguage: '',
+        preferredLanguage: 'ENGLISH',
         providerType: 'GOOGLE',
         providerSubjectId: '123',
         type: 'ADMIN',
@@ -67,7 +68,7 @@ const userData = {
       lastName: '',
       createdAt: 1580931064975,
       lastLogin: 1669299843399,
-      preferredLanguage: '',
+      preferredLanguage: 'ENGLISH',
       providerType: 'GOOGLE',
       providerSubjectId: '',
       type: 'ADMIN',
@@ -106,5 +107,23 @@ describe('parse jwt types', () => {
   it('should parse data by type', () => {
     UserJwtData.parse(userData);
     ApplicationJwtData.parse(appData);
+  });
+
+  it('should allow null value for preferredLanguage', () => {
+    const nulled = {
+      ...mockUserToken,
+      tokenInfo: {
+        ...mockUserToken.tokenInfo,
+        context: {
+          ...mockUserToken.tokenInfo.context,
+          user: {
+            ...mockUserToken.tokenInfo.context.user,
+            preferredLanguage: null,
+          },
+        },
+      },
+    };
+    expect(nulled.tokenInfo.context.user.preferredLanguage).to.be.null;
+    Identity.parse(nulled);
   });
 });

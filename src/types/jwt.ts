@@ -35,7 +35,7 @@ export const UserJwtContext = z.object({
       lastName: z.string(),
       createdAt: z.number(),
       lastLogin: z.number(),
-      preferredLanguage: z.optional(z.string()),
+      preferredLanguage: z.string().nullish(),
       type: UserType,
       providerType: ProviderType,
       providerSubjectId: z.string(),
