@@ -1,13 +1,13 @@
 {
   "name": "@overture-stack/ego-token-middleware",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "",
   "main": "dist",
   "scripts": {
     "build": "npm run build-ts && npm run tslint",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
-    "test": "mocha --exit -r ts-node/register test/**/*.ts",
+    "test": "mocha",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "tslint-check": "tslint-config-prettier-check ./tslint.json"
   },

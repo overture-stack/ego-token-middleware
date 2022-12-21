@@ -29,13 +29,13 @@ export const UserJwtContext = z.object({
   context: z.object({
     scope: Scope,
     user: z.object({
-      email: z.string(),
+      email: z.string().nullish(),
       status: UserStatus,
       firstName: z.string(),
       lastName: z.string(),
       createdAt: z.number(),
-      lastLogin: z.number(),
-      preferredLanguage: z.optional(z.string()),
+      lastLogin: z.number().nullish(),
+      preferredLanguage: z.string().nullish(),
       type: UserType,
       providerType: ProviderType,
       providerSubjectId: z.string(),
