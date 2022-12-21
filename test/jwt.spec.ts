@@ -126,4 +126,31 @@ describe('parse jwt types', () => {
     expect(nulled.tokenInfo.context.user.preferredLanguage).to.be.null;
     Identity.parse(nulled);
   });
+
+  it('should allow undefined values', () => {
+    const tokenWithUndefinedValues = {
+      ...mockUserToken,
+      tokenInfo: {
+        ...mockUserToken.tokenInfo,
+        context: {
+          ...mockUserToken.tokenInfo.context,
+          user: {
+            status: 'APPROVED',
+            firstName: '',
+            lastName: '',
+            createdAt: 1580931064975,
+            preferredLanguage: 'ENGLISH',
+            providerType: 'GOOGLE',
+            providerSubjectId: '',
+            type: 'ADMIN',
+            groups: [],
+          },
+        },
+      },
+    };
+
+    expect(tokenWithUndefinedValues.tokenInfo.context.user.hasOwnProperty('email')).to.be.false;
+    expect(tokenWithUndefinedValues.tokenInfo.context.user.hasOwnProperty('lastLogin')).to.be.false;
+    Identity.parse(tokenWithUndefinedValues);
+  });
 });
